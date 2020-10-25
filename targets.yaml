@@ -10,3 +10,7 @@ serverius_nl:
 github_com:
   host: github.com
   port: 22
+
+inexistant_host:
+  host: localhost
+  port: 1337
