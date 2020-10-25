@@ -7,7 +7,7 @@ import os
 
 
 parser = argparse.ArgumentParser(description="Check if list of servers are available")
-parser.add_argument("target", metavar='TARGET', help="must be a file formatted in YAML scheme, a single host in the form: 127.0.0.1:8000")
+parser.add_argument("target", metavar='TARGET', help="must be a file formatted in YAML scheme, a single host in the form: 127.0.0.1:8000, or a comma seperated list of hosts")
 args = parser.parse_args()
 
 if os.path.isfile(args.target):
@@ -15,8 +15,11 @@ if os.path.isfile(args.target):
         targets = yaml.load(yaml_file)
 
 else:
-    host, port = args.target.split(":")
-    targets = {host: {"host":host, "port":port}}
+    hosts = args.target.split(",")
+    targets = dict()
+    for host in hosts:
+        domain, port = host.split(":")
+        targets[host] = {"host":domain, "port":port}
 
 for name in targets:
     target = targets[name]
