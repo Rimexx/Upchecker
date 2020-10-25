@@ -4,6 +4,11 @@ require_once 'functions.php';
 
 use Symfony\Component\Yaml\Parser;
 
+$silent = false;
+if(in_array('-q', $argv)) {
+    $silent = true;
+}
+
 // Check if scope is defined
 if(count($argv) == 1) {
     print_usage();
@@ -11,7 +16,7 @@ if(count($argv) == 1) {
 
 $scope = 'all';
 // Check if scope is defined
-if(count($argv) == 3) {
+if(count($argv) >= 3) {
     $scope = explode(',', $argv[2]);
 }
 
@@ -35,7 +40,9 @@ $targets = $yaml->parse($contents);
 
 foreach($targets as $target_id => $target) {
     if(!isset($target['host']) || !isset($target['port'])) {
-        echo 'Skipping probe ' . $target_id . ' - missing params.' . PHP_EOL;
+        if(!$silent) {
+            echo 'Skipping probe ' . $target_id . ' - missing params.' . PHP_EOL;
+        }
         continue;
     }
     if($scope != 'all' && !in_array($target_id, $scope)) {
@@ -44,7 +51,9 @@ foreach($targets as $target_id => $target) {
 
     $host = $target['host'];
     $port = $target['port'];
-    echo 'Probing target ' . $target_id . ' -- Host ' . $target['host'] . ' on TCP port ' . $target['port'] . ' ... ';
+    if(!$silent) {
+        echo 'Probing target ' . $target_id . ' -- Host ' . $target['host'] . ' on TCP port ' . $target['port'] . ' ... ';
+    }
     echo probe($host, $port);
-    echo PHP_EOL . PHP_EOL;
+    echo PHP_EOL;
 }
