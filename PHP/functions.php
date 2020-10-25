@@ -6,7 +6,15 @@ function print_usage($custom = null) {
     if($custom != null) {
         echo $custom . PHP_EOL . PHP_EOL;
     }
-    echo 'Targets: must be a file formatted in YAML scheme' . PHP_EOL;
+    echo 'Targets: must be a file formatted in YAML scheme, or a single host in the form: 127.0.0.1:8000' . PHP_EOL;
     echo 'Scope: can be a specific (list) of targets to be probed. Use the comma as a delimiter. Optional.' . PHP_EOL;
     exit(1);
+}
+
+function probe($host, $port) {
+    $connection = @fsockopen($host, $port, $errno, $errstr, 1);
+    if (is_resource($connection)) {
+        return 'OK';
+    }
+    return 'FAIL';
 }

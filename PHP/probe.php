@@ -15,6 +15,13 @@ if(count($argv) == 3) {
     $scope = explode(',', $argv[2]);
 }
 
+$parseUrl = parse_url($argv[1]);
+if(isset($parseUrl['host']) && isset($parseUrl['port'])) {
+    $host = $parseUrl['host'];
+    $port = $parseUrl['port'];
+    echo probe($host, $port) . PHP_EOL; exit();
+}
+
 $yaml = new Parser();
 $cwd = getcwd();
 $fileName = (isset($argv[1]) ? $argv[1] : NULL);
@@ -38,13 +45,6 @@ foreach($targets as $target_id => $target) {
     $host = $target['host'];
     $port = $target['port'];
     echo 'Probing target ' . $target_id . ' -- Host ' . $target['host'] . ' on TCP port ' . $target['port'] . ' ... ';
-
-    $connection = @fsockopen($host, $port);
-
-    if (is_resource($connection)) {
-        echo 'OK';
-    } else {
-        echo 'FAIL';
-    }
+    echo probe($host, $port);
     echo PHP_EOL . PHP_EOL;
 }
