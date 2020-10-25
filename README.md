@@ -1,2 +1,2 @@
 # Upchecker
-Used to monitor uptime of servers/services
+Can be used to monitor uptime of servers/services
