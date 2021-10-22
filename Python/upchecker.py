@@ -18,8 +18,12 @@ else:
     hosts = args.target.split(",")
     targets = dict()
     for host in hosts:
-        domain, port = host.split(":")
-        targets[host] = {"host":domain, "port":port}
+        try:
+            domain, port = host.split(":")
+        except:
+            print(f"Couldn't parse {host}, did you forget to add a port?")
+        else:
+            targets[host] = {"host":domain, "port":port}
 
 for name in targets:
     target = targets[name]
