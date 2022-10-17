@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -32,8 +33,17 @@ func (t *Targets) Set(s string) error {
 
 func main() {
 	var targets Targets
-	flag.Var(&targets, "t", "a single host in the form: 127.0.0.1:8000, or a comma seperated list of hosts")
+	flag.Var(&targets, "t", "A single host in the form: 127.0.0.1:8000, or a comma seperated list of hosts")
+	flag.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintf(w, "Usage of %s -t TARGET [-h]\n", os.Args[0])
+		flag.PrintDefaults()
+	}
 	flag.Parse()
+
+	if len(targets) == 0 {
+		flag.Usage()
+	}
 
 	var wg sync.WaitGroup
 	wg.Add(len(targets))
@@ -42,6 +52,10 @@ func main() {
 		go func(target string) {
 			defer wg.Done()
 			splitted := strings.Split(target, ":")
+			if len(splitted) < 2 {
+				fmt.Printf("Could not parse '%s' did you add a port number?\n", target)
+				return
+			}
 			host := splitted[0]
 			port := splitted[1]
 			open := probeAddress("tcp", target)
