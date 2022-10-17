@@ -1,14 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
-	"strconv"
+	"strings"
 	"time"
 )
 
-func probePort(protocol, hostname string, port int) bool {
-	address := hostname + ":" + strconv.Itoa(port)
+func probeAddress(protocol string, address string) bool {
 	conn, err := net.DialTimeout(protocol, address, 2*time.Second)
 
 	if err != nil {
@@ -18,14 +18,31 @@ func probePort(protocol, hostname string, port int) bool {
 	return true
 }
 
+type Targets []string
+
+func (t *Targets) String() string {
+	return fmt.Sprintln(*t)
+}
+
+func (t *Targets) Set(s string) error {
+	*t = strings.Split(s, ",")
+	return nil
+}
+
 func main() {
-	fmt.Println("Port Scanning")
+	var targets Targets
+	flag.Var(&targets, "t", "a single host in the form: 127.0.0.1:8000, or a comma seperated list of hosts")
+	flag.Parse()
 
-	host := "localhost"
-	port := "1337"
-	name := host + port
+	// TODO use go routines
 
-	open := probePort("tcp", "localhost", 1337)
-	fmt.Printf("Probing target %s -- Host %s on TCP port %s ... ", host, port, name)
-	fmt.Printf("Port Open: %t\n", open)
+	for _, target := range targets {
+		splitted := strings.Split(target, ":")
+		host := splitted[0]
+		port := splitted[1]
+		fmt.Printf("Probing target %s -- Host %s on TCP port %s ... ", target, host, port)
+		open := probeAddress("tcp", target)
+		fmt.Printf("Port Open: %t\n", open)
+	}
+
 }
